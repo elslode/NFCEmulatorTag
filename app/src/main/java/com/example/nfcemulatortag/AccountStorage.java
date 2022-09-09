@@ -21,14 +21,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-/**
- * Utility class for persisting account numbers to disk.
- *
- * <p>The default SharedPreferences instance is used as the backing storage. Values are cached
- * in memory for performance.
- *
- * <p>This class is thread-safe.
- */
 public class AccountStorage {
     private static final String PREF_ACCOUNT_NUMBER = "account_number";
     private static final String DEFAULT_ACCOUNT_NUMBER = "00000000";
