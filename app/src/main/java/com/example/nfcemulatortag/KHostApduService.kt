@@ -283,6 +283,7 @@ class KHostApduService : HostApduService() {
             val firstIndex = HEX_CHARS.indexOf(this[i]);
             val secondIndex = HEX_CHARS.indexOf(this[i + 1]);
 
+
             val octet = firstIndex.shl(4).or(secondIndex)
             result.set(i.shr(1), octet.toByte())
         }
