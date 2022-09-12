@@ -128,7 +128,6 @@ class KHostApduService : HostApduService() {
         )
     }
 
-
     private fun getRandomIdBytes(): ByteArray {
         val rand = Random(System.currentTimeMillis())
         val buf = ByteArray(4)
