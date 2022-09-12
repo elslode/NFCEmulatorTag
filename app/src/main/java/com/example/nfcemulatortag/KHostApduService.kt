@@ -102,31 +102,58 @@ class KHostApduService : HostApduService() {
         0x82.toByte()   // SW2	Status byte 2 - Command processing qualifier
     )
 
+    private val TEXT_ACTIVATION = "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE=\\#admin extras bundle\\nNsysUrl\\=https\\://api.nstst.net\\nCodeAuth\\=93213\\n\n" +
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME=com.nsysgroup.nsystest.provision/com.nsysgroup.nsystest.utility.DeviceAdminReceiver\n" +
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM=KOMm6y1KzawSWlWe06yXPPeqhvwj_zfyJJbwf-DhYbA\n" +
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION=https\\://diag.nstst.net/a?n\\=papk\n" +
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME=com.nsysgroup.nsystest.provision\n" +
+            "android.app.extra.PROVISIONING_SKIP_ENCRYPTION=true\n" +
+            "android.app.extra.PROVISIONING_WIFI_PASSWORD=5rdxcft67\n" +
+            "android.app.extra.PROVISIONING_WIFI_SECURITY_TYPE=WPA\n" +
+            "android.app.extra.PROVISIONING_WIFI_SSID=\"NSOffice\""
+
     private val NDEF_ID = byteArrayOf(0xE1.toByte(), 0x04.toByte())
 
-    private var NDEF_URI = NdefMessage(createTextRecord("en", "Ciao, come va?", NDEF_ID))
+    //private var NDEF_URI = NdefMessage(createTextRecord("en", TEXT_ACTIVATION, NDEF_ID))
+    private var NDEF_URI = NdefMessage(getMimeRecord(mimeType = "application/com.android.managedprovisioning", content = TEXT_ACTIVATION))
     private var NDEF_URI_BYTES = NDEF_URI.toByteArray()
     private var NDEF_URI_LEN = fillByteArrayToFixedDimension(
         BigInteger.valueOf(NDEF_URI_BYTES.size.toLong()).toByteArray(), 2
     )
 
+    private fun getMimeRecord(mimeType: String, content: String): NdefRecord {
+        return NdefRecord(
+            NdefRecord.TNF_MIME_MEDIA,
+            mimeType.toByteArray(), getRandomIdBytes(), content.toByteArray()
+        )
+    }
+
+
+    private fun getRandomIdBytes(): ByteArray {
+        val rand = Random(System.currentTimeMillis())
+        val buf = ByteArray(4)
+        rand.nextBytes(buf)
+        return buf
+    }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-
-        if (intent.hasExtra("ndefMessage")) {
-            NDEF_URI =
-                NdefMessage(intent.getStringExtra("ndefMessage")
-                    ?.let { createTextRecord("en", it, NDEF_ID) })
-
-            NDEF_URI_BYTES = NDEF_URI.toByteArray()
-            NDEF_URI_LEN = fillByteArrayToFixedDimension(
-                BigInteger.valueOf(NDEF_URI_BYTES.size.toLong()).toByteArray(), 2
-            )
-        }
+//
+//        if (intent.hasExtra("ndefMessage")) {
+////            NDEF_URI = NdefMessage(intent.getStringExtra("ndefMessage")
+////                    ?.let { createTextRecord("en", it, NDEF_ID) })
+//
+//            NDEF_URI = NdefMessage(intent.getStringExtra("ndefMessage")
+//                    ?.let { getMimeRecord("application/com.android.managedprovisioning", it) })
+//
+//            NDEF_URI_BYTES = NDEF_URI.toByteArray()
+//            NDEF_URI_LEN = fillByteArrayToFixedDimension(
+//                BigInteger.valueOf(NDEF_URI_BYTES.size.toLong()).toByteArray(), 2
+//            )
+//        }
 
         Log.i(TAG, "onStartCommand() | NDEF" + NDEF_URI.toString())
 
-        return Service.START_STICKY
+        return Service.START_NOT_STICKY
     }
 
     override fun processCommandApdu(commandApdu: ByteArray, extras: Bundle?): ByteArray {
